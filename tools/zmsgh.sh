@@ -43,16 +43,24 @@ shift 3
 OPTIONS=("$@")
 
 # ─── Detect remote display ────────────────────────────────────────────────────
-# Filter only sessions with a :N display (not IP-based SSH sessions)
 REMOTE_DISPLAY=$(ssh "$FRIEND_HOST" "who | grep -oP '\(:\d+\)' | head -1 | tr -d '()'" 2>/dev/null)
 REMOTE_DISPLAY="${REMOTE_DISPLAY:-:0}"
 
-# ─── Build dialog args ────────────────────────────────────────────────────────
-DIALOG_ARGS=$(printf '%q ' "$WINDOW_TITLE" "$TYPE" "$TEXT" "${OPTIONS[@]}")
-
-# ─── Fire it over SSH and relay the response ──────────────────────────────────
+# ─── Build args as a JSON-like escaped string passed via env var ──────────────
+# Pass each argument as a separate env var to avoid quoting hell
 echo "→ Poking $FRIEND_HOST... (display: $REMOTE_DISPLAY)"
-RESPONSE=$(ssh "$FRIEND_HOST" "DISPLAY=$REMOTE_DISPLAY bash -c \"source $FRIEND_LIB && zques_dialog $DIALOG_ARGS\"" 2>/dev/null) || {
+
+RESPONSE=$(ssh "$FRIEND_HOST" \
+  "DISPLAY=$REMOTE_DISPLAY" \
+  "ZQUES_TITLE=$(printf '%q' "$WINDOW_TITLE")" \
+  "ZQUES_TYPE=$(printf '%q' "$TYPE")" \
+  "ZQUES_TEXT=$(printf '%q' "$TEXT")" \
+  "ZQUES_OPTS=$(printf '%q ' "${OPTIONS[@]}")" \
+  bash << 'SSHSCRIPT'
+source /usr/local/lib/zques_lib.sh
+eval "zques_dialog '$ZQUES_TITLE' '$ZQUES_TYPE' '$ZQUES_TEXT' $ZQUES_OPTS"
+SSHSCRIPT
+) 2>/dev/null || {
   echo "Error: Could not reach $FRIEND_HOST. Are they online on Tailscale?" >&2
   exit 1
 }
