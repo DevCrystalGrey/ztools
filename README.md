@@ -1,3 +1,6 @@
+## WARNING
+This project was done to test my knowledge about bash, if you face issues using the tool open an issue (i may or may not fix it, depends how much free time ill have to do this)
+
 # ztools 🪟
 
 A lightweight Bash toolkit for creating **Zenity GUI dialogs** from the terminal.  
