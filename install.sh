@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install.sh — ztools installer
-# Usage: sudo ./install.sh [uninstall]
+# Usage: sudo ./install.sh [uninstall|reinstall]
 
 set -euo pipefail
 
@@ -23,44 +23,64 @@ if [[ ! -f "$LIB" ]]; then
   exit 1
 fi
 
-# ─── Uninstall ────────────────────────────────────────────────────────────────
-if [[ "${1:-}" == "uninstall" ]]; then
+# ─── Uninstall function ───────────────────────────────────────────────────────
+uninstall() {
   echo "Uninstalling ztools..."
   rm -f "$LIB_DIR/zques_lib.sh"
   for name in "${TOOL_NAMES[@]}"; do
     rm -f "$BIN_DIR/$name"
   done
-  echo "Done. ztools has been removed."
-  exit 0
-fi
+  echo "✔ ztools has been removed."
+}
 
-# ─── Check zenity ─────────────────────────────────────────────────────────────
-if ! command -v zenity &>/dev/null; then
-  echo "Warning: 'zenity' is not installed."
-  echo "  sudo apt install zenity    (Debian/Ubuntu)"
-  echo "  sudo dnf install zenity    (Fedora/RHEL)"
+# ─── Install function ─────────────────────────────────────────────────────────
+install() {
+  # Check zenity
+  if ! command -v zenity &>/dev/null; then
+    echo "Warning: 'zenity' is not installed."
+    echo "  sudo apt install zenity    (Debian/Ubuntu)"
+    echo "  sudo dnf install zenity    (Fedora/RHEL)"
+    echo ""
+  fi
+
+  echo "Installing library → $LIB_DIR/zques_lib.sh"
+  cp "$LIB" "$LIB_DIR/zques_lib.sh"
+  chmod 644 "$LIB_DIR/zques_lib.sh"
+
+  for i in "${!TOOLS[@]}"; do
+    src="${TOOLS[$i]}"
+    name="${TOOL_NAMES[$i]}"
+    echo "Installing tool    → $BIN_DIR/$name"
+    cp "$src" "$BIN_DIR/$name"
+    chmod +x "$BIN_DIR/$name"
+  done
+
   echo ""
-fi
+  echo "✔ ztools installed successfully!"
+  echo ""
+  echo "  zques  – show a dialog locally"
+  echo "  zmsgh  – send a dialog to a friend over SSH"
+  echo ""
+  echo "To uninstall:  sudo ./install.sh uninstall"
+  echo "To reinstall:  sudo ./install.sh reinstall"
+}
 
-# ─── Install library ──────────────────────────────────────────────────────────
-echo "Installing library → $LIB_DIR/zques_lib.sh"
-cp "$LIB" "$LIB_DIR/zques_lib.sh"
-chmod 644 "$LIB_DIR/zques_lib.sh"
-
-# ─── Install tools ────────────────────────────────────────────────────────────
-for i in "${!TOOLS[@]}"; do
-  src="${TOOLS[$i]}"
-  name="${TOOL_NAMES[$i]}"
-  echo "Installing tool    → $BIN_DIR/$name"
-  cp "$src" "$BIN_DIR/$name"
-  chmod +x "$BIN_DIR/$name"
-done
-
-# ─── Done ─────────────────────────────────────────────────────────────────────
-echo ""
-echo "✔ ztools installed successfully!"
-echo ""
-echo "  zques  – show a dialog locally"
-echo "  zmsgh  – send a dialog to a friend over SSH"
-echo ""
-echo "To uninstall: sudo ./install.sh uninstall"
+# ─── Dispatch ─────────────────────────────────────────────────────────────────
+case "${1:-}" in
+  uninstall)
+    uninstall
+    ;;
+  reinstall)
+    echo "Reinstalling ztools..."
+    uninstall
+    echo ""
+    install
+    ;;
+  "")
+    install
+    ;;
+  *)
+    echo "Usage: sudo ./install.sh [uninstall|reinstall]" >&2
+    exit 1
+    ;;
+esac
