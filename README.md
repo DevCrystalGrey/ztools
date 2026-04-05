@@ -55,7 +55,6 @@ sudo cp tools/zmsgh.sh    /usr/local/bin/zmsgh  && sudo chmod +x /usr/local/bin/
 ## Uninstall
 
 ```bash
-# Run the installer with argument uninstall
 sudo ./install.sh uninstall
 ```
 
@@ -67,7 +66,7 @@ sudo rm -f /usr/local/bin/zques
 sudo rm -f /usr/local/bin/zmsgh
 ```
 
-> **Note:** For `zmsgh` to work, your friend also needs `zques_lib.sh` installed at `/usr/local/lib/zques_lib.sh`.
+> **Note:** For `zmsgh` to work, your friend also needs `zques_lib.sh` installed at `/usr/local/lib/zques_lib.sh` and `zenity` installed on their machine.
 
 ---
 
@@ -139,7 +138,8 @@ NAME=$(zques "Setup" entry "Enter your name:")
 
 ## zmsgh
 
-Send a Zenity dialog to a friend's screen over SSH, and see their response back in your terminal.
+Send a Zenity dialog to a friend's screen over SSH, and see their response back in your terminal.  
+Automatically detects the remote display — no manual `DISPLAY` setup needed.
 
 ```
 zmsgh <host> <type> <text> [options...]
