@@ -47,7 +47,7 @@ OPTIONS=("$@")
 
 # ─── Build the remote command ─────────────────────────────────────────────────
 REMOTE_CMD=$(cat <<REMOTE
-export DISPLAY=:0
+export DISPLAY=\$(who | grep -m1 '(:' | grep -oP '(?<=\().*(?=\))' || echo ":0")
 source "$FRIEND_LIB"
 zques_dialog $(printf '%q ' "$WINDOW_TITLE" "$TYPE" "$TEXT" "${OPTIONS[@]}")
 REMOTE
