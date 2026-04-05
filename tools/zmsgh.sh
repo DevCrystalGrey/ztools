@@ -55,7 +55,7 @@ REMOTE
 
 # ─── Fire it over SSH and relay the response ──────────────────────────────────
 echo "→ Poking $FRIEND_HOST..."
-RESPONSE=$(ssh "$FRIEND_HOST" "$REMOTE_CMD" 2>/dev/null) || {
+RESPONSE=$(ssh "$FRIEND_HOST" "bash -c $(printf '%q' "$REMOTE_CMD")" 2>/dev/null) || {
   echo "Error: Could not reach $FRIEND_HOST. Are they online on Tailscale?" >&2
   exit 1
 }
