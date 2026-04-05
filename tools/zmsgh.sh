@@ -46,31 +46,16 @@ OPTIONS=("$@")
 REMOTE_DISPLAY=$(ssh "$FRIEND_HOST" "who | grep -oP '\(:\d+\)' | head -1 | tr -d '()'" 2>/dev/null)
 REMOTE_DISPLAY="${REMOTE_DISPLAY:-:0}"
 
-# ─── Build command as a single quoted string ──────────────────────────────────
-# Encode all args as base64 to avoid any quoting/escaping issues over SSH
-ENCODED_TITLE=$(echo -n "$WINDOW_TITLE" | base64)
-ENCODED_TYPE=$(echo -n "$TYPE" | base64)
-ENCODED_TEXT=$(echo -n "$TEXT" | base64)
-ENCODED_OPTS=""
+# ─── Build args ───────────────────────────────────────────────────────────────
+ARGS="'$WINDOW_TITLE' '$TYPE' '$TEXT'"
 for opt in "${OPTIONS[@]:-}"; do
-  ENCODED_OPTS+=" $(echo -n "$opt" | base64)"
+  ARGS+=" '$opt'"
 done
 
+# ─── Fire ─────────────────────────────────────────────────────────────────────
 echo "→ Poking $FRIEND_HOST... (display: $REMOTE_DISPLAY)"
 
-RESPONSE=$(ssh "$FRIEND_HOST" "
-DISPLAY=$REMOTE_DISPLAY
-export DISPLAY
-TITLE=\$(echo '$ENCODED_TITLE' | base64 -d)
-TYPE=\$(echo '$ENCODED_TYPE' | base64 -d)
-TEXT=\$(echo '$ENCODED_TEXT' | base64 -d)
-OPTS=()
-for enc in $ENCODED_OPTS; do
-  OPTS+=(\"\$(echo \$enc | base64 -d)\")
-done
-source $FRIEND_LIB
-zques_dialog \"\$TITLE\" \"\$TYPE\" \"\$TEXT\" \"\${OPTS[@]}\"
-" 2>/dev/null) || {
+RESPONSE=$(ssh "$FRIEND_HOST" "DISPLAY=$REMOTE_DISPLAY bash -c \"source $FRIEND_LIB && zques_dialog $ARGS\"" 2>/dev/null) || {
   echo "Error: Could not reach $FRIEND_HOST. Are they online on Tailscale?" >&2
   exit 1
 }
