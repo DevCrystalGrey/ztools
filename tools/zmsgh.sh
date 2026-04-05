@@ -45,17 +45,12 @@ TEXT="$3"
 shift 3
 OPTIONS=("$@")
 
-# ─── Build the remote command ─────────────────────────────────────────────────
-REMOTE_CMD=$(cat <<REMOTE
-export DISPLAY=\$(who | grep -m1 '(:' | grep -oP '(?<=\().*(?=\))' || echo ":0")
-source "$FRIEND_LIB"
-zques_dialog $(printf '%q ' "$WINDOW_TITLE" "$TYPE" "$TEXT" "${OPTIONS[@]}")
-REMOTE
-)
+# ─── Build dialog args ───────────────────────────────────────────────────────
+DIALOG_ARGS=$(printf '%q ' "$WINDOW_TITLE" "$TYPE" "$TEXT" "${OPTIONS[@]}")
 
 # ─── Fire it over SSH and relay the response ──────────────────────────────────
 echo "→ Poking $FRIEND_HOST..."
-RESPONSE=$(ssh "$FRIEND_HOST" "bash -c $(printf '%q' "$REMOTE_CMD")" 2>/dev/null) || {
+RESPONSE=$(ssh "$FRIEND_HOST" "DISPLAY=\$(who | grep -m1 '(:' | grep -oP '(?<=\().*(?=\))' || echo ':0') bash -c \"source $FRIEND_LIB && zques_dialog $DIALOG_ARGS\"" 2>/dev/null) || {
   echo "Error: Could not reach $FRIEND_HOST. Are they online on Tailscale?" >&2
   exit 1
 }
