@@ -44,18 +44,27 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
+Or manually:
+
+```bash
+sudo cp libs/zques_lib.sh /usr/local/lib/zques_lib.sh
+sudo cp tools/zques.sh    /usr/local/bin/zques  && sudo chmod +x /usr/local/bin/zques
+sudo cp tools/zmsgh.sh    /usr/local/bin/zmsgh  && sudo chmod +x /usr/local/bin/zmsgh
+```
+
 ## Uninstall
 
 ```bash
 # Run the installer with argument uninstall
 sudo ./install.sh uninstall
 ```
+
 Or manually:
 
 ```bash
-sudo cp zques_lib.sh /usr/local/lib/zques_lib.sh
-sudo cp zques.sh     /usr/local/bin/zques  && sudo chmod +x /usr/local/bin/zques
-sudo cp zmsgh.sh     /usr/local/bin/zmsgh  && sudo chmod +x /usr/local/bin/zmsgh
+sudo rm -f /usr/local/lib/zques_lib.sh
+sudo rm -f /usr/local/bin/zques
+sudo rm -f /usr/local/bin/zmsgh
 ```
 
 > **Note:** For `zmsgh` to work, your friend also needs `zques_lib.sh` installed at `/usr/local/lib/zques_lib.sh`.
@@ -133,27 +142,25 @@ NAME=$(zques "Setup" entry "Enter your name:")
 Send a Zenity dialog to a friend's screen over SSH, and see their response back in your terminal.
 
 ```
-zmsgh <type> <text> [options...]
+zmsgh <host> <type> <text> [options...]
 ```
 
 ### Examples
 
 ```bash
-zmsgh info     "WAKE UP I WANNA PLAY WITH YOU"
-zmsgh question "Wanna play Minecraft?"
-zmsgh list     "Which game?" Minecraft Terraria "Deep Rock Galactic"
-zmsgh entry    "What time works for you?"
-zmsgh scale    "Rate your mood:" 1 10 1 5
+zmsgh duck@pcduck info     "WAKE UP I WANNA PLAY WITH YOU"
+zmsgh duck@pcduck question "Wanna play Minecraft?"
+zmsgh duck@pcduck list     "Which game?" Minecraft Terraria "Deep Rock Galactic"
+zmsgh duck@pcduck entry    "What time works for you?"
+zmsgh duck@pcduck scale    "Rate your mood:" 1 10 1 5
 ```
 
 ### Output
 
 ```
-→ Poking duck@duck...
-← duck@duck says: Deep Rock Galactic
+→ Poking duck@pcduck...
+← duck@pcduck says: Deep Rock Galactic
 ```
-
-> By default `zmsgh` targets `duck@pcduck` over Tailscale. Edit the `FRIEND_HOST` variable inside `zmsgh.sh` to change the target.
 
 ---
 
