@@ -43,6 +43,7 @@ shift 3
 OPTIONS=("$@")
 
 # ─── Detect remote display ────────────────────────────────────────────────────
+# Filter only sessions with a :N display (not IP-based SSH sessions)
 REMOTE_DISPLAY=$(ssh "$FRIEND_HOST" "who | grep -oP '\(:\d+\)' | head -1 | tr -d '()'" 2>/dev/null)
 REMOTE_DISPLAY="${REMOTE_DISPLAY:-:0}"
 
@@ -50,7 +51,7 @@ REMOTE_DISPLAY="${REMOTE_DISPLAY:-:0}"
 DIALOG_ARGS=$(printf '%q ' "$WINDOW_TITLE" "$TYPE" "$TEXT" "${OPTIONS[@]}")
 
 # ─── Fire it over SSH and relay the response ──────────────────────────────────
-echo "→ Poking $FRIEND_HOST..."
+echo "→ Poking $FRIEND_HOST... (display: $REMOTE_DISPLAY)"
 RESPONSE=$(ssh "$FRIEND_HOST" "DISPLAY=$REMOTE_DISPLAY bash -c \"source $FRIEND_LIB && zques_dialog $DIALOG_ARGS\"" 2>/dev/null) || {
   echo "Error: Could not reach $FRIEND_HOST. Are they online on Tailscale?" >&2
   exit 1
