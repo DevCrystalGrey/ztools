@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # zmsgh — poke your friend's screen over Tailscale SSH using zques
 # Usage: zmsgh <host> <type> <text> [options...]
-#
-# Fires a zques dialog on the target host's desktop.
-# Their response is printed back to YOUR terminal.
 
 set -euo pipefail
 
@@ -32,7 +29,7 @@ Examples:
 
 Your friend needs:
   - zques_lib.sh at $FRIEND_LIB
-  - A running display (DISPLAY=:0)
+  - A running display
 HELP
   exit 1
 }
@@ -45,12 +42,16 @@ TEXT="$3"
 shift 3
 OPTIONS=("$@")
 
-# ─── Build dialog args ───────────────────────────────────────────────────────
+# ─── Detect remote display ────────────────────────────────────────────────────
+REMOTE_DISPLAY=$(ssh "$FRIEND_HOST" "who | grep -oP '\(:\d+\)' | head -1 | tr -d '()'" 2>/dev/null)
+REMOTE_DISPLAY="${REMOTE_DISPLAY:-:0}"
+
+# ─── Build dialog args ────────────────────────────────────────────────────────
 DIALOG_ARGS=$(printf '%q ' "$WINDOW_TITLE" "$TYPE" "$TEXT" "${OPTIONS[@]}")
 
 # ─── Fire it over SSH and relay the response ──────────────────────────────────
 echo "→ Poking $FRIEND_HOST..."
-RESPONSE=$(ssh "$FRIEND_HOST" "DISPLAY=\$(who | grep -m1 '(:' | grep -oP '(?<=\().*(?=\))' || echo ':0') bash -c \"source $FRIEND_LIB && zques_dialog $DIALOG_ARGS\"" 2>/dev/null) || {
+RESPONSE=$(ssh "$FRIEND_HOST" "DISPLAY=$REMOTE_DISPLAY bash -c \"source $FRIEND_LIB && zques_dialog $DIALOG_ARGS\"" 2>/dev/null) || {
   echo "Error: Could not reach $FRIEND_HOST. Are they online on Tailscale?" >&2
   exit 1
 }
