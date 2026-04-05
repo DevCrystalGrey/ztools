@@ -52,6 +52,14 @@ sudo cp tools/zques.sh    /usr/local/bin/zques  && sudo chmod +x /usr/local/bin/
 sudo cp tools/zmsgh.sh    /usr/local/bin/zmsgh  && sudo chmod +x /usr/local/bin/zmsgh
 ```
 
+## Update
+
+```bash
+cd ztools
+git pull
+sudo ./install.sh reinstall
+```
+
 ## Uninstall
 
 ```bash
@@ -158,7 +166,7 @@ zmsgh duck@pcduck scale    "Rate your mood:" 1 10 1 5
 ### Output
 
 ```
-→ Poking duck@pcduck...
+→ Poking duck@pcduck... (display: :0)
 ← duck@pcduck says: Deep Rock Galactic
 ```
 
