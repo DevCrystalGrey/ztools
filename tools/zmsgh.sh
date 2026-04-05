@@ -5,7 +5,7 @@
 set -euo pipefail
 
 FRIEND_LIB="/usr/local/lib/zques_lib.sh"
-WINDOW_TITLE="🐦 Hey!"
+WINDOW_TITLE="Hey!"
 
 # ─── Help ────────────────────────────────────────────────────────────────────
 usage() {
