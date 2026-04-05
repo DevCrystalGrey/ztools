@@ -44,6 +44,12 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
+## Uninstall
+
+```bash
+# Run the installer with argument uninstall
+sudo ./install.sh uninstall
+```
 Or manually:
 
 ```bash
