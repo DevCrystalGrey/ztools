@@ -143,8 +143,8 @@ zmsgh scale    "Rate your mood:" 1 10 1 5
 ### Output
 
 ```
-→ Poking duck@pcduck...
-← duck@pcduck says: Deep Rock Galactic
+→ Poking duck@duck...
+← duck@duck says: Deep Rock Galactic
 ```
 
 > By default `zmsgh` targets `duck@pcduck` over Tailscale. Edit the `FRIEND_HOST` variable inside `zmsgh.sh` to change the target.
